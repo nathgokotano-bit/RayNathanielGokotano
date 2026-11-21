@@ -272,7 +272,7 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
    <footer class="sf"><button id="sfl" data-act="menu">Menu</button><button class="gb bx" data-act="games">Game</button><button id="sfr" data-act="contact">Contact</button></footer>
    <div class="toast bx" id="toast">COPIED!</div>
    <div id="gv"><div id="gsel" class="bx"><h2 class="h">GAMES</h2>
-    <button data-act="toProfile">Profile</button><button data-act="game" data-g="pac">Pac-Man</button><button data-act="game" data-g="tet">Tetris</button><button data-act="game" data-g="box">Boxxle</button></div>
+    <button data-act="toProfile">Profile</button><button data-act="game" data-g="pac">Pac-Man</button><button data-act="game" data-g="tet">Tetris</button><button data-act="game" data-g="box">Boxxle</button><button data-act="game" data-g="ttt">Tic-Tac-Toe</button></div>
     <canvas id="cv" width="150" height="212"></canvas></div>
    <div id="boot"><h2><span id="bl"></span><sup>&reg;</sup></h2><p id="bv"></p><div class="bar"><i></i></div></div>
    <div id="saver" aria-hidden="true"><div class="stars" id="stars"></div><div class="badge bx" id="badge">RAY_OS</div>
@@ -483,7 +483,52 @@ box:()=>{size(144,190);
   T('X NEXT  Y PREV',4,158,'#8e96a3');T('ST RESET',4,172,'#8e96a3');
   if(won)ov(144,190,'CLEAR!',n<BL.length-1?'PRESS A':'ALL DONE - A')});
  return{stop,key:k=>{if(V[k]){won||move(V[k][0],V[k][1])}else if(k=='x')load((n+1)%BL.length);else if(k=='y')load((n+BL.length-1)%BL.length);
-  else if(k=='s')load(n);else if(k=='a')load(won?(n+1)%BL.length:n)}}}
+  else if(k=='s')load(n);else if(k=='a')load(won?(n+1)%BL.length:n)}}},
+
+/* ---------- TIC-TAC-TOE: pick VS BOT or VS PERSON. D-pad moves, A/X places, ST new round, Y mode menu, B exit. Taps work too. ---------- */
+ttt:()=>{size(150,212);
+ const MISS=.2,                                            /* bot blunder chance: 0 = unbeatable, 1 = random */
+  X0=18,Y0=62,S=38,                                        /* board origin + cell size (canvas px) */
+  L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],
+  win=b=>L.find(l=>b[l[0]]&&b[l[0]]==b[l[1]]&&b[l[1]]==b[l[2]]),
+  mm=(b,p,d)=>{const w=win(b);if(w)return[b[w[0]]=='O'?10-d:d-10];if(b.every(Boolean))return[0];     /* minimax; bot is O */
+   let r=[p=='O'?-99:99];b.forEach((v,i)=>{if(v)return;b[i]=p;const s=mm(b,p=='O'?'X':'O',d+1)[0];b[i]=0;if(p=='O'?s>r[0]:s<r[0])r=[s,i]});return r};
+ let mode=0,ms=0,b,t,sl='X',cur,over,wl,bt,sc={X:0,O:0,D:0};  /* mode 0=menu 1=bot 2=person; sl=who starts next round */
+ const round=()=>{b=Array(9).fill(0);t=sl;sl=sl=='X'?'O':'X';cur=4;over=0;wl=0;bt=0},
+  start=m=>{mode=m;sc={X:0,O:0,D:0};sl='X';round()},
+  put=i=>{b[i]=t;beep(t=='X'?500:380,.05);wl=win(b);bt=0;
+   if(wl){over=t;sc[t]++;beep(880,.15)}else if(b.every(Boolean)){over='D';sc.D++}else t=t=='X'?'O':'X'},
+  tap=i=>{if(!over&&!b[i]&&!(mode==1&&t=='O'))put(i)},
+  box=(x,y,w,h,c)=>{R(x,y,w,2,c);R(x,y+h-2,w,2,c);R(x,y,2,h,c);R(x+w-2,y,2,h,c)};
+ const halt=loop(dt=>{
+  if(mode==1&&t=='O'&&!over){bt+=dt;if(bt>550){const e=b.map((v,i)=>v?-1:i).filter(i=>i>=0);       /* bot "thinks" for a beat */
+   put(Math.random()<MISS?e[Math.random()*e.length|0]:mm(b,'O',0)[1])}}
+  R(0,0,150,212,'#05060f');
+  if(!mode){T('TIC-TAC-TOE',75,30,'#ffd23f','center');T('CHOOSE OPPONENT',75,62,'#7cf5c4','center');
+   ['VS BOT','VS PERSON'].forEach((s,i)=>{const y=96+i*30;if(i==ms)R(20,y-8,110,24,'#1c2a6b');T((i==ms?'> ':'  ')+s,28,y,i==ms?'#fff':'#8e96a3')});
+   T('D-PAD + A',75,170,'#8e96a3','center');T('B EXIT',75,186,'#8e96a3','center');return}
+  const n1=mode==1?'YOU':'P1',n2=mode==1?'BOT':'P2';
+  T('TIC-TAC-TOE',75,6,'#fff','center');T(`${n1} ${sc.X}  ${n2} ${sc.O}  TIE ${sc.D}`,75,20,'#7cf5c4','center');
+  T(over=='D'?'IT IS A TIE!':over?(over=='X'?n1:n2)+(mode==1&&over=='X'?' WIN!':' WINS!'):mode==1&&t=='O'?'BOT THINKS...':(t=='X'?n1:n2)+' TURN',
+   75,38,over?'#ffd23f':'#fff','center');
+  [1,2].forEach(k=>{R(X0+k*S-1,Y0,2,S*3,'#3d4a8a');R(X0,Y0+k*S-1,S*3,2,'#3d4a8a')});
+  b.forEach((v,i)=>{const cx=X0+(i%3)*S+S/2,cy=Y0+(i/3|0)*S+S/2;
+   if(wl&&wl.includes(i))R(cx-S/2+2,cy-S/2+2,S-4,S-4,'#3a3410');
+   if(v=='X')for(let j=-9;j<=9;j+=3){R(cx+j-1,cy+j-1,4,4,'#ff6b6b');R(cx+j-1,cy-j-1,4,4,'#ff6b6b')}
+   else if(v=='O'){g2.strokeStyle='#4de0ff';g2.lineWidth=4;g2.beginPath();g2.arc(cx,cy,10,0,6.283);g2.stroke()}});
+  if(!over&&!(mode==1&&t=='O'))box(X0+(cur%3)*S+3,Y0+(cur/3|0)*S+3,S-6,S-6,'#ffd23f');
+  T('A PLACE  ST RESET',75,186,'#8e96a3','center');T('Y MODE   B EXIT',75,198,'#8e96a3','center')});
+ /* taps on the canvas: pick a menu row or a board cell (accounts for object-fit:contain letterboxing) */
+ cv.onpointerdown=e=>{const r=cv.getBoundingClientRect(),k=Math.min(r.width/150,r.height/212),
+   x=(e.clientX-r.left-(r.width-150*k)/2)/k,y=(e.clientY-r.top-(r.height-212*k)/2)/k;
+  if(!mode){if(y>=88&&y<148){ms=(y-88)/30|0;start(ms+1);triggerHaptic(15)}return}
+  const gx=Math.floor((x-X0)/S),gy=Math.floor((y-Y0)/S);
+  if(gx>=0&&gx<3&&gy>=0&&gy<3){over?round():(cur=gy*3+gx,tap(cur));triggerHaptic(15)}};
+ return{stop:()=>{halt();cv.onpointerdown=null},key:k=>{
+  if(!mode){if(k=='u'||k=='d')ms^=1;else if(k=='a'||k=='x')start(ms+1);return}
+  if(k=='y'){mode=0;return}if(k=='s'){round();return}
+  if(k=='a'||k=='x'){over?round():tap(cur);return}
+  const dx={l:-1,r:1}[k]||0,dy={u:-1,d:1}[k]||0;if(dx||dy)cur=(((cur/3|0)+dy+3)%3)*3+((cur%3)+dx+3)%3}}}
 };
 
 /* ===== Phone / small-window mode: the WHOLE device fits the viewport (no page scroll).
