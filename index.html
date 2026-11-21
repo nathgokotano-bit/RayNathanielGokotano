@@ -172,9 +172,27 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
 @keyframes zz{0%{transform:translate(0,2em);opacity:0}20%{opacity:1}100%{transform:translate(3em,-6em);opacity:0}}
 .press{position:absolute;left:0;right:0;bottom:2.2em;text-align:center;font:1.7em var(--vt);color:var(--gold)}
 /* Back of the console */
-.cover{width:27em;height:19em;background:#7b7e85;box-shadow:inset .5em .5em 0 #9ea1a7,inset -.5em -.5em 0 #5a5d64,0 0 0 var(--p) #3d4046}
-.cover::before{content:'';position:absolute;left:4em;right:4em;bottom:2em;height:7em;background:repeating-linear-gradient(0deg,#5a5d64 0 .5em,transparent .5em 1.4em)}
-.cover b{position:absolute;left:0;right:0;top:3.4em;text-align:center;font:normal .75em/1.8 var(--px);color:#44474e}
+.cover{display:block;padding:0;border:0;width:27em;height:19em;background:none;box-shadow:0 0 0 var(--p) #3d4046}
+.hole{position:absolute;inset:0;overflow:hidden;background:#0d0e14;box-shadow:inset .5em .5em 0 #05060a}
+.bay,.lid{position:absolute;inset:0}
+.lid{background:#7b7e85;box-shadow:inset .5em .5em 0 #9ea1a7,inset -.5em -.5em 0 #5a5d64;transition:transform .35s steps(5)}
+.cover:hover .lid{filter:brightness(1.08)}
+.cover.pop .lid{transform:translateY(-.6em)}.cover.open .lid{transform:translateY(84%)}   /* pop, then slide open */
+/* AA batteries: .old pair sits in the bay, .new pair drops in during the swap */
+.aa{position:absolute;top:2.8em;width:6em;height:12.4em;background:linear-gradient(90deg,#fff3 0 .8em,transparent .8em),var(--b);box-shadow:inset -.6em 0 0 #0004}
+.aa::before{content:'';position:absolute;left:1.8em;width:2.4em;top:-1em;height:1em;background:#c9ccd2}
+.aa::after{content:'';position:absolute;left:0;right:0;top:3.5em;height:4em;background:var(--band)}
+.aa.l{left:5em}.aa.r{left:16em}.aa.old{--b:#5b5e66;--band:#7a4a3a}.aa.new{--b:#262a33;--band:#f0c24b;opacity:0}
+.cover.eject .old{animation:aout .5s steps(5) forwards}.cover.eject .old.r{animation-delay:.1s}
+.cover.drop .new{animation:ains .45s steps(4) both}.cover.drop .new.r{animation-delay:.15s}
+@keyframes aout{to{transform:translateY(-8em);opacity:0}}
+@keyframes ains{0%{transform:translateY(-9em);opacity:0}70%{transform:translateY(.7em);opacity:1}100%{transform:none;opacity:1}}  /* last 30% = snap */
+.ok{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;padding:.8em 1em;font:normal .7em/1 var(--px);color:#2a1d02;background:var(--gold);--bc:#2a1d02}
+.cover.done .ok{display:block;animation:pop .25s steps(3)}
+.cover::after{content:attr(data-tip);display:none;position:absolute;left:50%;top:calc(100% + .9em);transform:translateX(-50%);z-index:20;white-space:nowrap;padding:.5em .7em;font:.8em var(--px);color:var(--fg);background:#041413;box-shadow:0 0 0 var(--p) var(--fg)}
+@media(hover:hover){.cover:hover::after{display:block}}.cover.busy::after{display:none!important}
+.lid::before{content:'';position:absolute;left:4em;right:4em;bottom:2em;height:7em;background:repeating-linear-gradient(0deg,#5a5d64 0 .5em,transparent .5em 1.4em)}
+.lid b{position:absolute;left:0;right:0;top:3.4em;text-align:center;font:normal .75em/1.8 var(--px);color:#44474e}
 .scw{position:absolute;width:1.9em;height:1.9em;background:linear-gradient(#262830,#262830) center/75% .35em no-repeat,#9a9da3;box-shadow:inset -.3em -.3em 0 #6b6e75}
 .scw:nth-of-type(1){left:1.2em;top:1.2em}.scw:nth-of-type(2){right:1.2em;top:1.2em}.scw:nth-of-type(3){left:1.2em;bottom:1.2em}.scw:nth-of-type(4){right:1.2em;bottom:1.2em}
 .sticker{width:25em;padding:1em 1.2em;text-align:center;color:#23262c;background:linear-gradient(100deg,#8e939b,#e9ecf0 28%,#aeb3bb 52%,#e2e5ea 76%,#8e939b);box-shadow:0 0 0 var(--p) #5a5d64}
@@ -284,10 +302,13 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
  <!-- ===== BACK OF CONSOLE ===== -->
  <div class="back" inert>
   <div class="body">
-   <div class="cover"><i class="scw"></i><i class="scw"></i><i class="scw"></i><i class="scw"></i><b>BATTERY<br>2 x AAA</b></div>
+   <button class="cover" id="bcov" data-act="swap" data-tip="Click to swap batteries" aria-label="Swap batteries"><span class="hole">
+    <span class="bay"><i class="aa old l"></i><i class="aa old r"></i><i class="aa new l"></i><i class="aa new r"></i></span>
+    <span class="lid"><i class="scw"></i><i class="scw"></i><i class="scw"></i><i class="scw"></i><b>BATTERY<br>2 x AA</b></span>
+    <span class="ok bx">FRESH BATTERIES INSTALLED!</span></span></button>
    <div class="sticker"><b id="sn"></b><i></i></div>
    <p class="fcc" id="fcc"></p>
-   <button class="cart" data-act="cart" aria-label="Swap game cartridge"><span class="cr" id="cr"><b id="crl">PORTFOLIO</b></span></button>
+   <button class="cart" data-act="cart" aria-label="Open profile cartridge"><span class="cr" id="cr"><b id="crl">PROFILE CART</b></span></button>
   </div>
   <button class="flipb" data-act="flip" aria-label="Flip console back"><b>&#x21BB; FLIP</b></button>
  </div>
@@ -339,7 +360,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(
  CFG.hapticActs.includes(a)&&triggerHaptic();b.blur&&b.blur();b.classList.add('on');setTimeout(()=>b.classList.remove('on'),120);
  const A={up:()=>dir('u'),down:()=>dir('d'),prev:()=>dir('l'),next:()=>dir('r'),menu:()=>{menu.classList.toggle('open');hl(menu,0)},contact:()=>go('contact'),home:()=>go('home'),
   go:()=>go(b.dataset.to),mute:toggleMute,copy:()=>copy(b.closest('.card').querySelector('.val').textContent),
-  games,game:()=>play(b.dataset.g),back,toProfile,a:btnA,b:back,x:btnX,y:btnY,se:toProfile,st:btnST,save:saveContact,flip:flipConsole,batt:battTip,cart:cartSlot};
+  games,game:()=>play(b.dataset.g),back,toProfile,a:btnA,b:back,x:btnX,y:btnY,se:toProfile,st:btnST,save:saveContact,flip:flipConsole,batt:battTip,cart:cartSlot,swap:swapBatteries};
  (A[a]||(()=>{}))()});
 
 /* Arrow keys press the D-pad; wheel anywhere on the page scrolls the LCD */
@@ -566,11 +587,24 @@ if(!RM&&'DeviceOrientationEvent' in window&&matchMedia('(pointer:coarse)').match
 /* Flip: hidden face is `inert` (no taps / focus); while flipped, keys never reach the hidden front */
 function flipConsole(){flipped=!flipped;shellEl.inert=flipped;rearEl.inert=!flipped;tilt.tf=flipped?180:0;kick()}
 addEventListener('keydown',e=>{if(!flipped)return;if(e.key==='Escape')flipConsole();e.stopImmediatePropagation()},true);
-/* Cartridge: eject, swap label, flip to the front and load that cartridge (PORTFOLIO = profile) */
-const CARTS=[['PORTFOLIO'],['PAC-MAN','pac'],['TETRIS','tet'],['BOXXLE','box']],cr=$('#cr');let ci=0;
-function cartSlot(){if(cr.classList.contains('eject'))return;ci=(ci+1)%CARTS.length;cr.classList.add('eject');
- setTimeout(()=>{$('#crl').textContent=CARTS[ci][0];cr.classList.remove('eject');
-  setTimeout(()=>{flipConsole();setTimeout(()=>CARTS[ci][1]?play(CARTS[ci][1]):toProfile(),750)},350)},300)}
+/* Profile cartridge: eject, flip to the front, open Profile (always; never a game) */
+const cr=$('#cr');
+function cartSlot(){if(cr.classList.contains('eject'))return;cr.classList.add('eject');
+ setTimeout(()=>{cr.classList.remove('eject');toProfile();go('profile');flipConsole()},350)}   /* route first, so Profile is already showing when the flip lands */
+
+/* Battery swap on the back. Timeline in ms; `swapping` blocks double-clicks mid-sequence. */
+const bcov=$('#bcov');let swapping=false;
+function swapBatteries(){
+ if(swapping)return;swapping=true;
+ const at=(ms,fn)=>setTimeout(fn,ms),cl=(c,on=1)=>bcov.classList[on?'add':'remove'](...c.split(' '));
+ cl('busy');beep(300,.04);cl('pop');                       /* 1. cover pops, then slides open */
+ at(180,()=>cl('open'));
+ at(700,()=>cl('eject'));                                  /* 2. old AAs slide out... */
+ at(1350,()=>cl('drop'));                                  /*    ...fresh AAs drop in */
+ at(1800,()=>{triggerHaptic(25);beep(440,.05)});           /*    snap */
+ at(2150,()=>cl('pop open',0));                            /* 3. cover slides shut */
+ at(2550,()=>{cl('eject drop',0);cl('done');beep(660,.07);at(110,()=>beep(990,.12))});   /* reset bay behind the closed lid + badge */
+ at(4200,()=>{cl('done',0);cl('busy',0);swapping=false})}
 
 /* ---- 2. Boot splash: ~1.5s, ding if audio is unlocked, skip on click/tap/key, once per session ---- */
 const boot=$('#boot');let booting=false,bootT,dingT;
