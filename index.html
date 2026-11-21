@@ -101,8 +101,8 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
 
 /* Social buttons & contact cards */
 .soc{display:grid;gap:1.1em}
-.soc a{display:flex;align-items:center;gap:.5em;padding:.45em .6em;font:2em/1 var(--vt);color:var(--fg);background:var(--lcd2);text-decoration:none}
-.soc a:hover{color:var(--gold)}.soc svg{width:1.5em;height:1.5em;color:var(--gold);image-rendering:pixelated}
+.soc a,.soc button{display:flex;align-items:center;gap:.5em;padding:.45em .6em;font:2em/1 var(--vt);color:var(--fg);background:var(--lcd2);text-decoration:none}
+.soc a:hover,.soc button:hover{color:var(--gold)}.soc button{width:100%;border:0;text-align:left}.soc svg{width:1.5em;height:1.5em;color:var(--gold);image-rendering:pixelated}
 .card{padding:1em;margin-bottom:1.3em;background:var(--lcd2)}
 .lab{font:.95em var(--px);color:var(--dim)}
 .val{font:2em/1.1 var(--vt);color:#d9fff0;overflow-wrap:anywhere;margin:.5em 0 .6em}
@@ -159,7 +159,7 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
     <!-- ABOUT: EDIT the bio text -->
     <section id="about">
      <h2 class="h">ABOUT</h2>
-     <div class="bio bx"><p>For business purposes :)</p></div>
+     <div class="bio bx"><p>Helping local cafes and businesses stand out with fast mobile sites and one-tap physical cards.</p></div>
     </section>
 
     <!-- SOCIAL: EDIT the href values. Icons are drawn from pixel bitmaps in the script. -->
@@ -169,6 +169,7 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
       <a class="bx" style="--bc:#4a7bf7" data-act="tap" href="https://www.facebook.com/RayNathanielGokotano" target="_blank" rel="noopener"><span data-ic="fb"></span>Facebook</a>
       <a class="bx" style="--bc:#e1306c" data-act="tap" href="https://www.instagram.com/d.nathanielll" target="_blank" rel="noopener"><span data-ic="ig"></span>Instagram</a>
       <a class="bx" style="--bc:#f0f0f0" data-act="tap" href="https://github.com/nathgokotano-bit" target="_blank" rel="noopener"><span data-ic="gh"></span>GitHub</a>
+      <button class="bx" style="--bc:#f0c24b" data-act="save"><span data-ic="sv"></span>Save Contact</button>
      </div>
     </section>
 
@@ -179,7 +180,7 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
       <div class="row"><a class="btn bx" data-act="tap" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=nathgokotano@gmail.com" target="_blank" rel="noopener">Send</a><button class="btn bx" data-act="copy">Copy</button></div></div>
      <div class="card bx"><div class="lab">CONTACT NO.</div><div class="val">0963 067 1741</div>
       <div class="row"><a class="btn bx" data-act="tap" href="tel:+639630671741">Call</a><button class="btn bx" data-act="copy">Copy</button></div></div>
-     <p class="foot">&copy; 2026 R.N. Gokotano</p>
+     <p class="foot">Gokotano's Calling Card</p>
     </section>
    </div>
 
@@ -216,11 +217,12 @@ h1{font:normal 1.2em/1.6 var(--px);text-align:center}
 <script>
 /* ===== Pixel icons: '#' = lit pixel (edit freely) ===== */
 const IC={
+ sv:"yyyyyyyyyyy|y.........y|y.www.yyy.y|y.www.....y|y..w..yyy.y|ywwwww....y|ywwwww.yy.y|y.........y|yyyyyyyyyyy",
  ig:".ggggggggg.|g.........g|g.......g.g|g...ggg...g|g..g...g..g|g..g...g..g|g..g...g..g|g...ggg...g|g.........g|g.........g|.ggggggggg.",
  fb:".bbbbbbbbb.|bbbbbbbbbbb|bbbbwwwwbbb|bbbbwwbbbbb|bbbbwwbbbbb|bbbwwwwbbbb|bbbbwwbbbbb|bbbbwwbbbbb|bbbbwwbbbbb|bbbbbbbbbbb|.bbbbbbbbb.",
  gh:"ww.......ww|wwww...wwww|wwwwwwwwwww|wwwwwwwwwww|ww..www..ww|ww..www..ww|wwwwwwwwwww|.wwwwwwwww.|..wwwwwww..|...wwwww...|....www....",
  em:"rrrrrrrrrrr|rwrrrrrrrwr|rrwrrrrrwrr|rrrwrrrwrrr|rrrrwrwrrrr|rrrrrwrrrrr|rrrrrrrrrrr|rrrrrrrrrrr|rrrrrrrrrrr"};
-const PAL={w:'#fff',r:'#ea4335',b:'#3b6fe8'},GR=['#833ab4','#c13584','#e1306c','#fd5949','#fcaf45'];
+const PAL={w:'#fff',r:'#ea4335',b:'#3b6fe8',y:'#f0c24b'},GR=['#833ab4','#c13584','#e1306c','#fd5949','#fcaf45'];
 document.querySelectorAll('[data-ic]').forEach(el=>{const g=IC[el.dataset.ic].split('|'),H=g.length,Wd=g[0].length;let s='';
  g.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c==='g'?GR[Math.min(4,(x+H-y)/(Wd+H)*5|0)]:PAL[c]}"/>`}));
  el.innerHTML=`<svg viewBox="0 0 ${Wd} ${H}" shape-rendering="crispEdges">${s}</svg>`});
@@ -248,7 +250,7 @@ function step(n){let i=0;secs.forEach((s,j)=>{if($('#'+s).offsetTop<=scr.scrollT
 
 /* ===== Copy + "COPIED!" toast ===== */
 async function copy(t){try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove()}
- const T=$('#toast');T.classList.remove('show');void T.offsetWidth;T.classList.add('show');clearTimeout(T._t);T._t=setTimeout(()=>T.classList.remove('show'),1200)}
+ popToast('COPIED!')}
 
 /* ===== One handler for every key and button ===== */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;
@@ -256,7 +258,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(
  b.blur&&b.blur();b.classList.add('on');setTimeout(()=>b.classList.remove('on'),120);
  const A={up:()=>dir('u'),down:()=>dir('d'),prev:()=>dir('l'),next:()=>dir('r'),menu:()=>{menu.classList.toggle('open');hl(menu,0)},contact:()=>go('contact'),home:()=>go('home'),
   go:()=>go(b.dataset.to),mute:toggleMute,copy:()=>copy(b.closest('.card').querySelector('.val').textContent),
-  games,game:()=>play(b.dataset.g),back,toProfile,a:btnA,b:back,x:btnX,y:btnY,se:toProfile,st:btnST};
+  games,game:()=>play(b.dataset.g),back,toProfile,a:btnA,b:back,x:btnX,y:btnY,se:toProfile,st:btnST,save:saveContact};
  (A[a]||(()=>{}))()});
 
 /* Arrow keys press the D-pad; wheel anywhere on the page scrolls the LCD */
@@ -396,6 +398,31 @@ function fit(){
  ph.style.setProperty('--w',w+'px');
  ph.style.setProperty('--H',Math.max(72,Math.min(106,ah/(w/40))).toFixed(2))}
 fit();requestAnimationFrame(fit);addEventListener('resize',fit);MQ.addEventListener('change',fit);
+
+/* ===== Save Contact: builds a vCard 3.0 file in the browser and downloads it. EDIT the values in VC. ===== */
+const VC={first:'Ray Nathaniel',last:'Gokotano',name:'Ray Nathaniel Gokotano',
+ title:'Freelance Web Developer & NFC Card Creator',
+ tel:'+639630671741',email:'nathgokotano@gmail.com',
+ site:'',                       /* portfolio URL; leave empty to use this page's own address when it is hosted */
+ github:'https://github.com/nathgokotano-bit',facebook:'https://www.facebook.com/RayNathanielGokotano',instagram:'https://www.instagram.com/d.nathanielll',
+ file:'Ray_Gokotano.vcf'};
+function popToast(m){const T=$('#toast');T.textContent=m;T.classList.remove('show');void T.offsetWidth;T.classList.add('show');clearTimeout(T._t);T._t=setTimeout(()=>T.classList.remove('show'),1200)}
+function saveContact(){
+ const e=v=>String(v).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');
+ const fold=l=>{let o=l.slice(0,75);l=l.slice(75);while(l){o+='\r\n '+l.slice(0,74);l=l.slice(74)}return o};
+ const site=VC.site||(/^https?:/.test(location.protocol)?location.href.split(/[?#]/)[0]:'');
+ const L=['BEGIN:VCARD','VERSION:3.0',`N:${e(VC.last)};${e(VC.first)};;;`,`FN:${e(VC.name)}`,`TITLE:${e(VC.title)}`,
+  `TEL;TYPE=CELL:${VC.tel}`,`EMAIL;TYPE=INTERNET:${VC.email}`];
+ if(site)L.push(`URL:${site}`);
+ L.push(`X-SOCIALPROFILE;TYPE=github:${VC.github}`,`X-SOCIALPROFILE;TYPE=facebook:${VC.facebook}`,`X-SOCIALPROFILE;TYPE=instagram:${VC.instagram}`,
+  `NOTE:${e('GitHub: '+VC.github+'\nFacebook: '+VC.facebook+'\nInstagram: '+VC.instagram)}`,'END:VCARD');
+ const txt=L.map(fold).join('\r\n')+'\r\n';
+ if('download' in document.createElement('a')){
+  const u=URL.createObjectURL(new Blob([txt],{type:'text/vcard;charset=utf-8'})),a=document.createElement('a');
+  a.href=u;a.download=VC.file;a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000)}
+ else location.href='data:text/vcard;charset=utf-8,'+encodeURIComponent(txt);   /* very old browsers */
+ popToast('SAVED!')}
 </script>
 </body>
 </html>
